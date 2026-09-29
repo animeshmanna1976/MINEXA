@@ -24,7 +24,7 @@ type Application = {
   mine_name: string | null;
 };
 
-const API_URL = 'http://localhost:3000/api/v1/application/status';
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'}/application/status`;
 
 function formatDate(date: string | null) {
   if (!date) return '—';

@@ -3,7 +3,7 @@ const cors = require('cors');
 const pool = require('./db');
 const app = express();
 const authenticateToken = require('./middleware/auth');
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const managerRoutes = require('./routes/manager');
@@ -35,9 +35,7 @@ const auditRoutes = require("./routes/audit");
 const analyticsRoutes = require('./routes/analytics');
 const reportsRoutes = require('./routes/reports');
 
-app.use(cors({
-  origin: 'http://localhost:8080',
-}));
+app.use(cors());
 
 app.use(express.json());
 app.use('/api/v1/admin', adminRoutes);
