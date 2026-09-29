@@ -94,6 +94,39 @@ app.get('/api/v1/db-test', async (req, res) => {
   }
 });
 
+app.get('/api/v1/test-email', async (req, res) => {
+  const { sendEmail } = require('./services/emailService');
+  const targetEmail = req.query.to || process.env.EMAIL_USER;
+
+  if (!targetEmail) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Please provide ?to=your_email@gmail.com or set EMAIL_USER in environment variables.',
+    });
+  }
+
+  try {
+    const result = await sendEmail({
+      to: targetEmail,
+      subject: 'MINEXA Test Email',
+      text: 'Hello from MINEXA! Your email service is working properly on Render.',
+    });
+
+    res.json({
+      status: 'success',
+      message: `Test email sent successfully to ${targetEmail}`,
+      result,
+    });
+  } catch (error) {
+    console.error('Test email failed:', error);
+    res.status(500).json({
+      status: 'error',
+      message: error.message || 'Failed to send test email',
+      hint: 'Ensure EMAIL_USER and EMAIL_APP_PASSWORD are correctly set in Render environment variables without spaces.',
+    });
+  }
+});
+
 app.post(
   '/api/v1/leave-requests',
   authenticateToken,
