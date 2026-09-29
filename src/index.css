@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 43% 5%;
+    --surface: 210 33% 10%;
+    --surface-secondary: 210 29% 14%;
+    --foreground: 216 33% 97%;
+    --foreground-muted: 214 16% 61%;
+    --neonova-blue: 197 100% 55%;
+    --neonova-blue-light: 197 100% 68%;
+    --neonova-blue-dark: 197 100% 42%;
+    --safety-danger: 354 100% 67%;
+    --safety-warning: 37 100% 64%;
+    --safety-success: 151 77% 56%;
+    --safety-info: 197 100% 55%;
+    --background-hex: #081018;
+    --gradient-primary: linear-gradient(135deg, hsl(var(--safety-success)), hsl(var(--neonova-blue)));
+    --gradient-surface: linear-gradient(145deg, hsl(var(--surface)), hsl(var(--surface-secondary)));
+    --shadow-card: 0 16px 40px hsl(var(--background) / .28);
+    --shadow-hover: 0 20px 45px hsl(var(--background) / .45);
+    --shadow-glow: 0 0 28px hsl(var(--safety-success) / .2);
+    --card: var(--surface);
+    --card-foreground: var(--foreground);
+    --popover: var(--surface);
+    --popover-foreground: var(--foreground);
+    --primary: var(--safety-success);
+    --primary-foreground: 210 43% 5%;
+    --secondary: var(--surface-secondary);
+    --secondary-foreground: var(--foreground);
+    --muted: var(--surface);
+    --muted-foreground: var(--foreground-muted);
+    --accent: var(--neonova-blue);
+    --accent-foreground: var(--foreground);
+    --destructive: var(--safety-danger);
+    --destructive-foreground: var(--foreground);
+    --border: 210 21% 21%;
+    --input: 210 21% 24%;
+    --ring: var(--safety-success);
+    --radius: .75rem;
+  }
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-background text-foreground antialiased; font-family: 'Manrope', system-ui, sans-serif; }
+  button, input { font: inherit; }
+  ::selection { background: hsl(var(--primary) / .22); color: hsl(var(--foreground)); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--surface)); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--foreground-muted)); }
+}
+
+@layer components {
+  .font-display { font-family: 'Sora', 'Manrope', sans-serif; }
+  .ops-card { @apply rounded-xl border border-border/70 bg-surface; box-shadow: var(--shadow-card); }
+  .neonova-card { @apply rounded-xl border border-border/70 bg-surface; box-shadow: var(--shadow-card); }
+  .neonova-glow { box-shadow: var(--shadow-glow); }
+  .neonova-gradient { background: var(--gradient-primary); }
+  .text-gradient { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .live-pulse { display: inline-flex; animation: live-pulse 1.8s ease-in-out infinite; }
+}
+
+@layer utilities {
+  .text-safety-danger { color: hsl(var(--safety-danger)); }
+  .text-safety-warning { color: hsl(var(--safety-warning)); }
+  .text-safety-success { color: hsl(var(--safety-success)); }
+  .text-safety-info { color: hsl(var(--safety-info)); }
+  .bg-safety-danger { background-color: hsl(var(--safety-danger)); }
+  .bg-safety-warning { background-color: hsl(var(--safety-warning)); }
+  .bg-safety-success { background-color: hsl(var(--safety-success)); }
+  .bg-safety-info { background-color: hsl(var(--safety-info)); }
+}
+
+@keyframes live-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(.8); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
