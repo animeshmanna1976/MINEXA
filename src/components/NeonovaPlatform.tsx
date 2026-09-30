@@ -158,7 +158,7 @@ type WorkerEmergencyType =
   | 'SECURITY'
   | 'OTHER';
 
-const MINEXA_API_BASE = 'http://localhost:3000/api/v1';
+const MINEXA_API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
 function getWorkerAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('minexa_token');
