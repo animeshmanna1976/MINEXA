@@ -1,3 +1,10 @@
+const dns = require('dns');
+try {
+  if (typeof dns.setDefaultResultOrder === 'function') {
+    dns.setDefaultResultOrder('ipv4first');
+  }
+} catch (_) {}
+
 const express = require('express');
 const cors = require('cors');
 const pool = require('./db');

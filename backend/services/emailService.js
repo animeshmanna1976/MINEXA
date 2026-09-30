@@ -10,13 +10,19 @@ try {
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    port: 587,
+    secure: false, // false for port 587 (STARTTLS)
     auth: {
         user: process.env.EMAIL_USER,
         pass: (process.env.EMAIL_APP_PASSWORD || '').replace(/\s+/g, '')
     },
-    family: 4 // Force IPv4 connection to prevent ENETUNREACH on cloud environments
+    tls: {
+        rejectUnauthorized: false
+    },
+    // Force IPv4 lookup directly on socket creation
+    lookup: (hostname, options, callback) => {
+        return dns.lookup(hostname, { family: 4 }, callback);
+    }
 });
 
 async function sendEmail({
