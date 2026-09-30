@@ -1,4 +1,12 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Ensure Node.js prioritizes and forces IPv4 on IPv4-only cloud hosts like Render
+try {
+    if (typeof dns.setDefaultResultOrder === 'function') {
+        dns.setDefaultResultOrder('ipv4first');
+    }
+} catch (_) {}
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -7,7 +15,8 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL_USER,
         pass: (process.env.EMAIL_APP_PASSWORD || '').replace(/\s+/g, '')
-    }
+    },
+    family: 4 // Force IPv4 connection to prevent ENETUNREACH on cloud environments
 });
 
 async function sendEmail({
