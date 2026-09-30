@@ -8,27 +8,11 @@ try {
     }
 } catch (_) {}
 
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // false for port 587 (STARTTLS)
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: (process.env.EMAIL_APP_PASSWORD || '').replace(/\s+/g, '')
-    },
-    tls: {
-        rejectUnauthorized: false
-    },
-    // Force IPv4 lookup directly on socket creation
-    lookup: (hostname, options, callback) => {
-        return dns.lookup(hostname, { family: 4 }, callback);
-    }
-});
-
 async function sendEmail({
     to,
     subject,
-    text
+    text,
+    html
 }) {
     if (!to) {
         throw new Error('Recipient email is required.');
@@ -38,19 +22,80 @@ async function sendEmail({
         throw new Error('Email subject is required.');
     }
 
-    if (!text) {
-        throw new Error('Email message is required.');
+    if (!text && !html) {
+        throw new Error('Email message text is required.');
     }
 
+    // 1. IF RESEND_API_KEY is provided, use Resend's HTTPS REST API (Zero firewall/port issues!)
+    if (process.env.RESEND_API_KEY) {
+        const fromEmail = process.env.EMAIL_FROM || 'MINEXA <onboarding@resend.dev>';
+
+        const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                from: fromEmail,
+                to: [to],
+                subject,
+                text,
+                ...(html ? { html } : {})
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('Resend API Error:', data);
+            throw new Error(data.message || 'Failed to send email via Resend API');
+        }
+
+        console.log('📧 EMAIL SENT via RESEND');
+        console.log('To:', to);
+        console.log('Message ID:', data.id);
+
+        return {
+            success: true,
+            provider: 'RESEND',
+            messageId: data.id
+        };
+    }
+
+    // 2. FALLBACK to SMTP / Gmail
     try {
+        let hostAddress = 'smtp.gmail.com';
+        try {
+            const resolved = await dns.promises.lookup('smtp.gmail.com', { family: 4 });
+            if (resolved && resolved.address) {
+                hostAddress = resolved.address;
+            }
+        } catch (_) {}
+
+        const transporter = nodemailer.createTransport({
+            host: hostAddress,
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: (process.env.EMAIL_APP_PASSWORD || '').replace(/\s+/g, '')
+            },
+            tls: {
+                servername: 'smtp.gmail.com',
+                rejectUnauthorized: false
+            }
+        });
+
         const info = await transporter.sendMail({
             from: `"NEONOVA" <${process.env.EMAIL_USER}>`,
             to,
             subject,
-            text
+            text,
+            ...(html ? { html } : {})
         });
 
-        console.log('📧 EMAIL SENT');
+        console.log('📧 EMAIL SENT via SMTP');
         console.log('To:', to);
         console.log('Message ID:', info.messageId);
 
@@ -60,7 +105,7 @@ async function sendEmail({
             messageId: info.messageId
         };
     } catch (error) {
-        console.error('Email error:', error);
+        console.error('SMTP Email error:', error);
         throw error;
     }
 }
