@@ -5,6 +5,9 @@
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%20%2F%20Supabase-4169E1?logo=postgresql)](https://www.postgresql.org/)
 [![Tailwind CSS](https://img.shields.io/badge/UI-Tailwind%20CSS%20%2B%20shadcn%2Fui-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![Email Service](https://img.shields.io/badge/Email-Resend%20API-000000?logo=resend)](https://resend.com/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-minexa.vercel.app-00C781?style=flat&logo=vercel)](https://minexa.vercel.app/)
+
+> 🌐 **Live Application:** [https://minexa.vercel.app/](https://minexa.vercel.app/)
 
 **MINEXA** (powered by **NEONOVA Mine Intelligence**) is an enterprise-grade digital safety, workforce, and operations management platform designed for modern surface and underground mining operations. It bridges real-time field data with operational decision-making, offering comprehensive role-based workflows for Field Workers, Safety Officers, Mine Managers, and Platform Administrators.
 
@@ -214,26 +217,22 @@ The frontend will be available at `http://localhost:5173` and backend at `http:/
 
 ---
 
-## 🌐 Production Deployment
+## ⛑️ IoT Smart Helmet System (Hardware Integration)
 
-### Frontend (Vercel)
-1. Import repository into [Vercel](https://vercel.com).
-2. Framework Preset: **Vite**.
-3. Add Environment Variable:
-   - `VITE_API_URL`: `https://minexa-backend.onrender.com/api/v1`
-4. Client-side routing is handled by [`vercel.json`](./vercel.json).
+MINEXA integrates directly with dedicated IoT Smart Helmets worn by coal mine field workers to provide continuous wearable telemetry and rapid on-site emergency alerts.
 
-### Backend (Render)
-1. Create a **Web Service** on [Render](https://render.com) connected to the repository.
-2. Build Command: `npm install`
-3. Start Command: `npm run start:backend`
-4. Add Environment Variables:
-   - `DATABASE_URL`: Your Supabase connection string.
-   - `JWT_SECRET`: Secure random string.
-   - `RESEND_API_KEY`: Your Resend API key.
-   - `EMAIL_FROM`: `MINEXA <noreply@animeshmanna.me>`
+<p align="center">
+  <img src="docs/smart-helmet.png" alt="Smart Helmet System Hardware Components" width="400" />
+</p>
 
----
+### Key Hardware & AI Capabilities
+- **Microcontroller (ESP32):** Low-power processing node managing on-device sensor sampling, Wi-Fi/mesh telemetry transmission, and localized alarm triggers.
+- **Gas & Smoke Detection:**
+  - **MQ-7 Sensor:** High-sensitivity detection of toxic Carbon Monoxide ($CO$) in deep underground mine shafts.
+  - **MQ-2 Sensor:** Rapid detection of smoke, methane ($CH_4$), and combustible liquefied gases.
+- **Environmental Monitoring (DHT11):** Continuous real-time measurement of ambient temperature and humidity inside mine pits.
+- **Audible Emergency Alarm (Buzzer):** Instant loud on-helmet buzzer alert that sounds immediately whenever hazardous gas thresholds or extreme heat conditions are breached.
+- **Deep Learning Smart Face Attendance:** Integrated facial recognition deep learning model for automated, biometric worker attendance verification through the helmet vision terminal before entering shafts.
 
 ## 🔒 Security & Compliance
 - **Zero Raw Passwords:** All credentials hashed using `bcrypt` with salt rounds = 12.
@@ -241,13 +240,3 @@ The frontend will be available at `http://localhost:5173` and backend at `http:/
 - **CORS Restricted:** Cross-Origin Resource Sharing secured for production frontends.
 - **Audit Logging:** Every administrative and safety status modification is captured in `audit_logs`.
 
----
-
-## 👨‍💻 Author & Maintainer
-- **Developer:** [Animesh Manna](https://github.com/animeshmanna1976)
-- **Domain:** [animeshmanna.me](https://animeshmanna.me)
-
----
-
-## 📄 License
-This project is licensed under the MIT License.
