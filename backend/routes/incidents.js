@@ -779,7 +779,7 @@ the investigation lifecycle.
 router.patch(
     '/:id/status',
     authenticateToken,
-    requireRoles('SAFETY_OFFICER'),
+    requireRoles('MINE_MANAGER', 'SAFETY_OFFICER', 'PLATFORM_ADMIN'),
     async (req, res) => {
         try {
             const incidentId =
@@ -823,7 +823,7 @@ router.patch(
                 return res.status(403).json({
                     status: 'error',
                     message:
-                        'Safety Officer is not assigned to a mine.'
+                        'You are not assigned to a mine.'
                 });
             }
 
@@ -919,7 +919,7 @@ mark an incident RESOLVED.
 router.patch(
     '/:id/resolve',
     authenticateToken,
-    requireRoles('SAFETY_OFFICER'),
+    requireRoles('MINE_MANAGER', 'SAFETY_OFFICER', 'PLATFORM_ADMIN'),
     async (req, res) => {
         try {
             const incidentId =
@@ -956,7 +956,7 @@ router.patch(
                 return res.status(403).json({
                     status: 'error',
                     message:
-                        'Safety Officer is not assigned to a mine.'
+                        'You are not assigned to a mine.'
                 });
             }
 
@@ -1035,7 +1035,7 @@ Only Safety Officers can close a resolved incident.
 router.patch(
     '/:id/close',
     authenticateToken,
-    requireRoles('SAFETY_OFFICER'),
+    requireRoles('MINE_MANAGER', 'SAFETY_OFFICER', 'PLATFORM_ADMIN'),
     async (req, res) => {
         try {
             const incidentId =
@@ -1060,7 +1060,7 @@ router.patch(
                 return res.status(403).json({
                     status: 'error',
                     message:
-                        'Safety Officer is not assigned to a mine.'
+                        'You are not assigned to a mine.'
                 });
             }
 
