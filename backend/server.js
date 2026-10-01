@@ -147,7 +147,17 @@ app.post(
         reason,
       } = req.body;
 
-      const workerId = req.user.workerId;
+      let workerId = req.user.workerId;
+
+      if (!workerId && req.user.userId) {
+        const userRes = await pool.query(
+          'SELECT worker_id FROM users WHERE id = $1',
+          [req.user.userId]
+        );
+        if (userRes.rows.length > 0) {
+          workerId = userRes.rows[0].worker_id;
+        }
+      }
 
       if (!workerId) {
         return res.status(403).json({
@@ -424,7 +434,9 @@ app.get(
             const workerId =
                 userResult.rows[0].worker_id;
 
-            const result = await pool.query(
+            const currentYear = new Date().getFullYear();
+
+            let result = await pool.query(
                 `
                 SELECT
                     b.leave_type,
@@ -476,9 +488,80 @@ app.get(
                 `,
                 [
                     workerId,
-                    new Date().getFullYear()
+                    currentYear
                 ]
             );
+
+            if (result.rows.length === 0) {
+                await pool.query(
+                    `
+                    INSERT INTO worker_leave_balances (worker_id, leave_type, allocated_days, year)
+                    VALUES
+                        ($1, 'annual', 18, $2),
+                        ($1, 'sick', 12, $2),
+                        ($1, 'personal', 6, $2),
+                        ($1, 'emergency', 5, $2)
+                    ON CONFLICT (worker_id, leave_type, year) DO NOTHING
+                    `,
+                    [workerId, currentYear]
+                );
+
+                result = await pool.query(
+                    `
+                    SELECT
+                        b.leave_type,
+                        b.allocated_days,
+
+                        COALESCE(
+                            SUM(
+                                CASE
+                                    WHEN lr.status = 'approved'
+                                     AND EXTRACT(
+                                         YEAR FROM lr.start_date
+                                     ) = $2
+                                    THEN lr.days
+                                    ELSE 0
+                                END
+                            ),
+                            0
+                        )::INTEGER AS approved_days,
+
+                        COALESCE(
+                            SUM(
+                                CASE
+                                    WHEN lr.status = 'pending'
+                                     AND EXTRACT(
+                                         YEAR FROM lr.start_date
+                                     ) = $2
+                                    THEN lr.days
+                                    ELSE 0
+                                END
+                            ),
+                            0
+                        )::INTEGER AS pending_days
+
+                    FROM worker_leave_balances b
+
+                    LEFT JOIN leave_requests lr
+                        ON lr.worker_id = b.worker_id
+                       AND lr.leave_type = b.leave_type
+
+                    WHERE b.worker_id = $1
+                      AND b.year = $2
+
+                    GROUP BY
+                        b.leave_type,
+                        b.allocated_days
+
+                    ORDER BY
+                        b.leave_type;
+                    `,
+                    [
+                        workerId,
+                        currentYear
+                    ]
+                );
+            }
 
             const balances = result.rows.map(
                 (row) => ({

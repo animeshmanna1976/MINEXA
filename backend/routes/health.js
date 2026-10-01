@@ -18,7 +18,7 @@ router.get(
     requireRoles('FIELD_WORKER'),
     async (req, res) => {
         try {
-            const result = await pool.query(
+            let result = await pool.query(
                 `
                 SELECT
                     h.id,
@@ -40,10 +40,53 @@ router.get(
             );
 
             if (result.rows.length === 0) {
-                return res.status(404).json({
-                    status: 'error',
-                    message: 'Health profile not found.'
-                });
+                // Find worker_id from user account
+                const userWorker = await pool.query(
+                    `SELECT worker_id FROM users WHERE id = $1`,
+                    [req.user.userId]
+                );
+
+                if (userWorker.rows.length > 0 && userWorker.rows[0].worker_id) {
+                    const workerId = userWorker.rows[0].worker_id;
+
+                    result = await pool.query(
+                        `
+                        INSERT INTO worker_health
+                        (
+                            worker_id,
+                            medical_status,
+                            medical_check_date,
+                            fitness_expiry_date
+                        )
+                        VALUES
+                        (
+                            $1,
+                            'FIT',
+                            CURRENT_DATE,
+                            CURRENT_DATE + INTERVAL '6 months'
+                        )
+                        ON CONFLICT (worker_id) DO UPDATE
+                            SET updated_at = CURRENT_TIMESTAMP
+                        RETURNING
+                            id,
+                            worker_id,
+                            blood_group,
+                            medical_status,
+                            medical_check_date,
+                            fitness_expiry_date,
+                            restrictions,
+                            notes,
+                            created_at,
+                            updated_at
+                        `,
+                        [workerId]
+                    );
+                } else {
+                    return res.status(404).json({
+                        status: 'error',
+                        message: 'Active worker account not found.'
+                    });
+                }
             }
 
             return res.status(200).json({
@@ -220,47 +263,71 @@ router.put(
                 notes
             } = req.body;
 
+            const userWorker = await pool.query(
+                `SELECT worker_id FROM users WHERE id = $1`,
+                [req.user.userId]
+            );
+
+            if (userWorker.rows.length === 0 || !userWorker.rows[0].worker_id) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: 'Active worker account not found.'
+                });
+            }
+
+            const workerId = userWorker.rows[0].worker_id;
+
             const result = await pool.query(
                 `
-                UPDATE worker_health h
+                INSERT INTO worker_health
+                (
+                    worker_id,
+                    blood_group,
+                    medical_check_date,
+                    fitness_expiry_date,
+                    restrictions,
+                    notes,
+                    medical_status
+                )
+                VALUES
+                (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    $6,
+                    'FIT'
+                )
+                ON CONFLICT (worker_id) DO UPDATE
                 SET
-                    blood_group = $1,
-                    medical_check_date = $2,
-                    fitness_expiry_date = $3,
-                    restrictions = $4,
-                    notes = $5,
+                    blood_group = EXCLUDED.blood_group,
+                    medical_check_date = EXCLUDED.medical_check_date,
+                    fitness_expiry_date = EXCLUDED.fitness_expiry_date,
+                    restrictions = EXCLUDED.restrictions,
+                    notes = EXCLUDED.notes,
                     updated_at = CURRENT_TIMESTAMP
-                FROM users u
-                WHERE u.id = $6
-                  AND u.worker_id = h.worker_id
                 RETURNING
-                    h.id,
-                    h.worker_id,
-                    h.blood_group,
-                    h.medical_status,
-                    h.medical_check_date,
-                    h.fitness_expiry_date,
-                    h.restrictions,
-                    h.notes,
-                    h.created_at,
-                    h.updated_at
+                    id,
+                    worker_id,
+                    blood_group,
+                    medical_status,
+                    medical_check_date,
+                    fitness_expiry_date,
+                    restrictions,
+                    notes,
+                    created_at,
+                    updated_at
                 `,
                 [
+                    workerId,
                     bloodGroup || null,
                     medicalCheckDate || null,
                     fitnessExpiryDate || null,
                     restrictions || null,
-                    notes || null,
-                    req.user.userId
+                    notes || null
                 ]
             );
-
-            if (result.rows.length === 0) {
-                return res.status(404).json({
-                    status: 'error',
-                    message: 'Health profile not found.'
-                });
-            }
 
             return res.status(200).json({
                 status: 'success',

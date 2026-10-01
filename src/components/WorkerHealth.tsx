@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Activity,
   Bell,
@@ -236,42 +236,35 @@ const [editForm, setEditForm] = useState({
   restrictions: '',
   notes: '',
 });
-  useEffect(() => {
-  let mounted = true;
-
-  const loadHealth = async () => {
+  const loadHealth = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
 
       const apiHealth = await getMyHealth();
-setEditForm({
-  bloodGroup: apiHealth.blood_group || '',
-  medicalCheckDate:
-    apiHealth.medical_check_date
-      ? apiHealth.medical_check_date.slice(0, 10)
-      : '',
-  fitnessExpiryDate:
-    apiHealth.fitness_expiry_date
-      ? apiHealth.fitness_expiry_date.slice(0, 10)
-      : '',
-  restrictions: apiHealth.restrictions || '',
-  notes: apiHealth.notes || '',
-});
-      if (!mounted) return;
+      setEditForm({
+        bloodGroup: apiHealth.blood_group || '',
+        medicalCheckDate:
+          apiHealth.medical_check_date
+            ? apiHealth.medical_check_date.slice(0, 10)
+            : '',
+        fitnessExpiryDate:
+          apiHealth.fitness_expiry_date
+            ? apiHealth.fitness_expiry_date.slice(0, 10)
+            : '',
+        restrictions: apiHealth.restrictions || '',
+        notes: apiHealth.notes || '',
+      });
 
       setHealth((current) => ({
         ...current,
 
         fitnessStatus:
-          apiHealth.medical_status ===
-          'FIT'
+          apiHealth.medical_status === 'FIT'
             ? 'fit'
-            : apiHealth.medical_status ===
-              'FIT_WITH_RESTRICTIONS'
+            : apiHealth.medical_status === 'FIT_WITH_RESTRICTIONS'
             ? 'fit_restricted'
-            : apiHealth.medical_status ===
-              'PENDING'
+            : apiHealth.medical_status === 'PENDING'
             ? 'medical_review'
             : 'not_fit',
 
@@ -286,20 +279,17 @@ setEditForm({
         medicalCertificateValidUntil:
           apiHealth.fitness_expiry_date ||
           current.medicalCertificateValidUntil,
-bloodGroup:
-  apiHealth.blood_group ||
-  current.bloodGroup,
+        bloodGroup:
+          apiHealth.blood_group ||
+          current.bloodGroup,
 
-restrictions:
-  apiHealth.restrictions ||
-  current.restrictions,
+        restrictions:
+          apiHealth.restrictions ||
+          current.restrictions,
 
-notes:
-  apiHealth.notes ||
-  current.notes,
-        // These are not currently supplied
-        // by the backend, so preserve existing
-        // frontend-only values for now.
+        notes:
+          apiHealth.notes ||
+          current.notes,
         healthScore: current.healthScore,
         hydration: current.hydration,
         restScore: current.restScore,
@@ -314,8 +304,6 @@ notes:
         err
       );
 
-      if (!mounted) return;
-
       setError(
         err instanceof Error
           ? err.message
@@ -323,18 +311,13 @@ notes:
       );
 
     } finally {
-      if (mounted) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
-  };
+  }, []);
 
-  loadHealth();
-
-  return () => {
-    mounted = false;
-  };
-}, []);
+  useEffect(() => {
+    loadHealth();
+  }, [loadHealth]);
   
 const handleSaveHealth = async () => {
   try {
@@ -477,6 +460,28 @@ const handleSaveHealth = async () => {
           <p className="mt-1 text-xs text-muted-foreground">
             {error}
           </p>
+
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setError('');
+                loadHealth();
+              }}
+            >
+              Try Again
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                setError('');
+                setEditing(true);
+              }}
+            >
+              Set Up Profile
+            </Button>
+          </div>
         </div>
       </section>
     );

@@ -317,6 +317,11 @@ async function initializeDatabase() {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
 
+            INSERT INTO worker_health (worker_id, medical_status, medical_check_date, fitness_expiry_date)
+            SELECT id, 'FIT', CURRENT_DATE, CURRENT_DATE + INTERVAL '6 months'
+            FROM workers
+            ON CONFLICT (worker_id) DO NOTHING;
+
             CREATE TABLE IF NOT EXISTS worker_health_logs (
                 id SERIAL PRIMARY KEY,
                 worker_id INTEGER REFERENCES workers(id) ON DELETE CASCADE,

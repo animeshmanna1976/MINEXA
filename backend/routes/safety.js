@@ -514,6 +514,32 @@ router.post(
 
             /*
             -----------------------------------------
+            INITIALIZE WORKER HEALTH PROFILE
+            -----------------------------------------
+            */
+            await client.query(
+                `
+                INSERT INTO worker_health
+                (
+                    worker_id,
+                    medical_status,
+                    medical_check_date,
+                    fitness_expiry_date
+                )
+                VALUES
+                (
+                    $1,
+                    'FIT',
+                    CURRENT_DATE,
+                    CURRENT_DATE + INTERVAL '6 months'
+                )
+                ON CONFLICT (worker_id) DO NOTHING
+                `,
+                [worker.id]
+            );
+
+            /*
+            -----------------------------------------
             RECORD SAFETY VERIFICATION
             -----------------------------------------
             */

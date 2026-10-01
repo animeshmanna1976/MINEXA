@@ -382,11 +382,29 @@ export default function LeaveManagementForm() {
 
   const getBalance = (
     type: LeaveType,
-  ) =>
-    balances.find(
+  ): LeaveBalanceApi => {
+    const found = balances.find(
       (balance) =>
         balance.leaveType === type,
     );
+    if (found) return found;
+
+    const defaultAllocations: Record<LeaveType, number> = {
+      annual: 18,
+      sick: 12,
+      personal: 6,
+      emergency: 5,
+    };
+
+    const days = defaultAllocations[type] ?? 12;
+    return {
+      leaveType: type,
+      allocatedDays: days,
+      approvedDays: 0,
+      pendingDays: 0,
+      remainingDays: days,
+    };
+  };
 
   const selectedBalance =
     form.leaveType
