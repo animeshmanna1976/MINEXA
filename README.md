@@ -1,15 +1,22 @@
 # MINEXA (NEONOVA) — Intelligent Mine Safety & Operations Platform
 
-[![Vite](https://img.shields.io/badge/Frontend-Vite%20%2B%20React%20%2B%20TypeScript-646CFF?logo=vite)](https://vitejs.dev/)
-[![Express.js](https://img.shields.io/badge/Backend-Node.js%20%2B%20Express-000000?logo=express)](https://expressjs.com/)
-[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%20%2F%20Supabase-4169E1?logo=postgresql)](https://www.postgresql.org/)
-[![Tailwind CSS](https://img.shields.io/badge/UI-Tailwind%20CSS%20%2B%20shadcn%2Fui-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
-[![Email Service](https://img.shields.io/badge/Email-Resend%20API-000000?logo=resend)](https://resend.com/)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-minexa.vercel.app-00C781?style=flat&logo=vercel)](https://minexa.vercel.app/)
 
 > 🌐 **Live Application:** [https://minexa.vercel.app/](https://minexa.vercel.app/)
 
 **MINEXA** (powered by **NEONOVA Mine Intelligence**) is an enterprise-grade digital safety, workforce, and operations management platform designed for modern surface and underground mining operations. It bridges real-time field data with operational decision-making, offering comprehensive role-based workflows for Field Workers, Safety Officers, Mine Managers, and Platform Administrators.
+
+---
+
+## 🛠️ Tech Stack
+
+| Domain | Technologies & Libraries |
+|---|---|
+| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, Radix UI Primitives, Lucide Icons, Recharts |
+| **Backend & API** | Node.js, Express.js, JWT Authentication, bcrypt, CORS |
+| **Database & Cloud** | PostgreSQL, Render, Vercel |
+| **IoT & Embedded** | ESP32 Microcontroller, DHT11 (Temp/Humidity), MQ-7 ($CO$), MQ-2 (Smoke/Methane), Active Piezo Buzzer |
+| **AI & Computer Vision** | Deep Learning Facial Recognition Model (Smart Attendance) |
+| **Alerts & Integrations** | Resend HTTPS REST API (Domain-authenticated emails), SMS & WhatsApp Gateways |
 
 ---
 
@@ -231,7 +238,7 @@ MINEXA integrates directly with dedicated IoT Smart Helmets worn by coal mine fi
   - **MQ-7 Sensor:** High-sensitivity detection of toxic Carbon Monoxide ($CO$) in deep underground mine shafts.
   - **MQ-2 Sensor:** Rapid detection of smoke, methane ($CH_4$), and combustible liquefied gases.
 - **Environmental Monitoring (DHT11):** Continuous real-time measurement of ambient temperature and humidity inside mine pits.
-- **Audible Emergency Alarm (Buzzer):** Instant loud on-helmet buzzer alert that sounds immediately whenever hazardous gas thresholds or extreme heat conditions are breached.
+- **LED Emergency Alarm (Buzzer):** Instant loud on-helmet buzzer alert that sounds immediately whenever hazardous gas thresholds or extreme heat conditions are breached.
 - **Deep Learning Smart Face Attendance:** Integrated facial recognition deep learning model for automated, biometric worker attendance verification through the helmet vision terminal before entering shafts.
 
 ## 🔒 Security & Compliance
