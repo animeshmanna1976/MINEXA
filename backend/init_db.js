@@ -99,8 +99,14 @@ async function initializeDatabase() {
                 assigned_worker_id INTEGER REFERENCES workers(id) ON DELETE SET NULL,
                 assigned_at TIMESTAMP,
                 is_active BOOLEAN DEFAULT TRUE,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+
+            -- Auto-migration for existing tables missing updated_at
+            ALTER TABLE equipment ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+            ALTER TABLE equipment_inspections ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+            ALTER TABLE equipment_maintenance ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
             CREATE TABLE IF NOT EXISTS equipment_inspections (
                 id SERIAL PRIMARY KEY,

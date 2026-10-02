@@ -564,12 +564,14 @@ router.patch(
                     [req.user.userId]
                 );
 
+                const userMineId = userResult.rows[0]?.mine_id;
+
                 if (
-                    userResult.rows.length === 0 ||
-                    userResult.rows[0].mine_id !== equipment.mine_id
+                    !userMineId ||
+                    (equipment.mine_id && userMineId !== equipment.mine_id)
                 ) {
                     return res.status(403).json({
-                        message: "Access denied"
+                        message: "Access denied to equipment outside your mine"
                     });
                 }
             }
@@ -610,7 +612,7 @@ router.patch(
 
             const result = await pool.query(query, params);
 
-            res.json({
+            return res.json({
                 message: "Equipment status updated successfully",
                 equipment: result.rows[0]
             });
@@ -619,8 +621,8 @@ router.patch(
 
             console.error("Equipment status error:", error);
 
-            res.status(500).json({
-                message: "Failed to update equipment status"
+            return res.status(500).json({
+                message: error.message || "Failed to update equipment status"
             });
         }
     }
